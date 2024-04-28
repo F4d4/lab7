@@ -27,33 +27,56 @@ public class SocketClient {
     }
 
     public void start() throws Exception {
-        SocketChannel socketChannel = SocketChannel.open();
-        socketChannel.connect(new InetSocketAddress(host, port));
-        socketChannel.configureBlocking(false);
-        Scanner scanner= new Scanner(System.in);
-        while(scanner.hasNextLine()){
-            //Request request = new Request(scanner.nextLine());
-            //sendRequest(request,socketChannel);
+        boolean connected = false;
+        SocketChannel socketChannel = null;
+
+        // Попытка подключения с задержкой
+        while (!connected) {
+            try {
+                socketChannel = SocketChannel.open();
+                socketChannel.connect(new InetSocketAddress(host, port));
+                socketChannel.configureBlocking(false);
+                connected = true; // Успешное подключение
+            } catch (IOException e) {
+                console.println("Не удалось подключиться к серверу. Попробуйте снова через 5 секунд...");
+                try {
+                    Thread.sleep(5000); // Задержка перед следующей попыткой
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+
+        console.println("Подключение к серверу успешно установлено.");
+        Scanner scanner = new Scanner(System.in);
+        while (scanner.hasNextLine()) {
             String command = scanner.nextLine().trim();
             String[] tokens = (command.trim() + " ").split(" ", 2);
-            String command1=tokens[0];
-            if(command1.equals("exit")){
+            String command1 = tokens[0];
+
+            if (command1.equals("exit")) {
                 console.println("Завершение сеанса");
-                socketChannel.close();
+                try {
+                    socketChannel.close();
+                } catch (IOException e) {
+                    console.println("Ошибка при закрытии соединения: " + e.getMessage());
+                }
                 System.exit(1);
             }
-            if(command1.equals("save")){
+
+            if (command1.equals("save")) {
                 console.println("Вам недоступна данная команда");
             }
-            if(command1.equals("add")||command1.equals("update")||command1.equals("add_if_min")){
+
+            if (command1.equals("add") || command1.equals("update") || command1.equals("add_if_min")) {
                 Ticket ticket = Ask.askTicket(console);
                 Request request = new Request(command, ticket);
                 sendRequest(request, socketChannel);
-            }else if(command1.equals("execute_script")){
-                Execute_script.execute(command,socketChannel);
-            }else{
-                Request request = new Request(command,null);
-                sendRequest(request,socketChannel);
+            } else if (command1.equals("execute_script")) {
+                Execute_script.execute(command, socketChannel);
+            } else if(!command1.equals("save")){
+                Request request = new Request(command, null);
+                sendRequest(request, socketChannel);
             }
         }
     }

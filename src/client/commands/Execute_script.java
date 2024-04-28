@@ -52,7 +52,6 @@ public class Execute_script {
                     if (st.contains(file_new)) {
                         System.out.println("Рекурсия файла " + file.getName() + " была пропущена");
                     } else {
-                        //Server.sendRequest(new Request(line, new Organization(org), null));
                         execute(line,socketChannel);
                     }
                 } else {
@@ -67,7 +66,4 @@ public class Execute_script {
         return "execute_script file_name";
     }
 
-    public String getDescription() {
-        return "execute script from file";
-    }
 }

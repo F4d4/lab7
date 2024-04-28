@@ -87,7 +87,7 @@ public class SocketServer {
         channel.configureBlocking(false);
         channel.register(this.selector, SelectionKey.OP_READ);
         this.session.add(channel);
-        System.out.println("System:user new: " + channel.socket().getRemoteSocketAddress() + "\n");
+        log.info("Подключился новый пользователь: " + channel.socket().getRemoteSocketAddress() + "\n");
     }
 
 
@@ -104,7 +104,7 @@ public class SocketServer {
             if (numRead == -1) {
                 // Клиент закрыл соединение
                 this.session.remove(channel);
-                System.out.println("System:user left: " + channel.socket().getRemoteSocketAddress() + "\n");
+                log.info("Пользователь отключился: " + channel.socket().getRemoteSocketAddress() + "\n");
                 key.cancel();
                 return;
             }
@@ -125,7 +125,7 @@ public class SocketServer {
                 Request request = (Request) oi.readObject();
                 String gotData = request.getCommandMassage();
                 Ticket gotTicket = request.getTicket();
-                System.out.println("Got: " + gotData + "\n" + gotTicket);
+                log.info("Получено: " + gotData + " | Ticket:" + gotTicket);
 
                 String[] tokens = (gotData.trim() + " ").split(" ", 2);
                 tokens[1] = tokens[1].trim();
@@ -141,10 +141,10 @@ public class SocketServer {
                 Response response = command.apply(tokens , gotTicket);
                 sendAnswer(response, key);
             } catch (ClassNotFoundException e) {
-                System.err.println("Ошибка обработки запроса: " + e.getMessage());
+                log.error("Ошибка обработки запроса: " + e.getMessage());
             } catch (EOFException | StreamCorruptedException e) {
                 // Не удалось десериализовать объект, возможно, не все данные получены
-                System.err.println("Получены неполные данные.");
+                log.error("Получены неполные данные.");
             }
         }
     }
