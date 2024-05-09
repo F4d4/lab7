@@ -39,7 +39,7 @@ public class PrintFieldAscendingEvent extends Command{
             //console.println("Значения event в порядке возрастания");
             //eventMinAge.forEach(console::println);
             String minAgeString = eventMinAge.stream()
-                    .map(String::valueOf)
+                    .map(it -> String.valueOf(it))
                     .collect(Collectors.joining("\n"));
             return new Response("\nЗначения event в порядке возрастания\n"+minAgeString);
         }
