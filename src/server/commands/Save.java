@@ -22,14 +22,13 @@ public class Save  extends Command{
      * @return возвращает сообщение о  успешности выполнения команды
      */
     @Override
-    public Response apply(String[] arguments , Ticket ticket){
+    public Response apply(String[] arguments , Ticket ticket,String login,String password){
         if(!arguments[1].isEmpty()){
             console.println("Неправильное количество аргументов!");
             console.println("Использование: '" + getName() + "'");
             return new Response("");
         }
 
-        collectionRuler.saveCollection();
         console.println("Выполнение сохранения прошло успешно");
         return new Response("");
     }

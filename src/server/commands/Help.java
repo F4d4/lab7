@@ -20,11 +20,11 @@ public class Help extends Command {
      * @return возвращает сообщение о  успешности выполнения команды
      */
     @Override
-    public Response apply(String[] arguments , Ticket ticket) {
+    public Response apply(String[] arguments , Ticket ticket,String login,String password) {
         if (!arguments[1].isEmpty()) {
             //console.println("Неправильное количество аргументов!");
             //console.println("Использование: '" + getName() + "'");
-            return new Response("Неправильное количество аргументов!\nИспользование: '\" + getName() + \"'");
+            return new Response("Неправильное количество аргументов!\n" + "Использование: '" + getName() + "'" );
         }
 
 /*        commandRuler.getCommands().values().forEach(command -> {
@@ -35,6 +35,7 @@ public class Help extends Command {
         commandRuler.getCommands().values().forEach(command -> {
             result.append(command.getName() + " : " + command.getDescription()+"\n\n");
         });
+        result.append("execute_script : выполнить скрипт указанного файла");
         return new Response(result.toString());
     }
 }

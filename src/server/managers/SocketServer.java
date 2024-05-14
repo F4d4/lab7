@@ -9,17 +9,19 @@ import server.rulers.CommandRuler;
 
 import java.io.*;
 import java.net.InetSocketAddress;
+import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
 public class SocketServer {
-    private static final Logger log = LoggerFactory.getLogger(SocketServer.class);
+    public static final Logger log = LoggerFactory.getLogger(SocketServer.class);
     private final CommandRuler commandRuler;
     private Selector selector;
     private InetSocketAddress address;
@@ -50,11 +52,11 @@ public class SocketServer {
                     var command = commandRuler.getCommands().get("save");
                     var exitCommand = commandRuler.getCommands().get("exit");
                     if (executingCommand.equals("save")) {
-                        Response serverResponse = command.apply(tokens,null);
+                        Response serverResponse = command.apply(tokens,null,null,null);
                     }else{
                         if(executingCommand.equals("exit")){
-                            Response serverResponseSave = command.apply(tokens, null);
-                            Response serverResponseExit = exitCommand.apply(tokens , null);
+                            Response serverResponseSave = command.apply(tokens, null,null,null);
+                            Response serverResponseExit = exitCommand.apply(tokens , null,null,null);
                         }else{
                             log.warn("Внимание! Введенная вами команда отсутствует в базе сервера. Вам доступны следующие две команы : save , exit. Введите любую из них.");
                         }
@@ -99,24 +101,31 @@ public class SocketServer {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
         while (true) {
-            int numRead = channel.read(buffer);
+            try{
+                int numRead = channel.read(buffer);
 
-            if (numRead == -1) {
-                // Клиент закрыл соединение
+                if (numRead == -1) {
+                    // Клиент закрыл соединение
+                    this.session.remove(channel);
+                    log.info("Пользователь отключился: " + channel.socket().getRemoteSocketAddress() + "\n");
+                    key.cancel();
+                    return;
+                }
+
+                if (numRead == 0) {
+                    // Нет данных для чтения
+                    break;
+                }
+
+                buffer.flip();
+                byteArrayOutputStream.write(buffer.array(), 0, buffer.limit());
+                buffer.clear();
+            }catch (SocketException e){
                 this.session.remove(channel);
-                log.info("Пользователь отключился: " + channel.socket().getRemoteSocketAddress() + "\n");
+                log.info("Пользователь внезапно отключился: " + channel.socket().getRemoteSocketAddress() + "\n");
                 key.cancel();
                 return;
             }
-
-            if (numRead == 0) {
-                // Нет данных для чтения
-                break;
-            }
-
-            buffer.flip();
-            byteArrayOutputStream.write(buffer.array(), 0, buffer.limit());
-            buffer.clear();
         }
 
         byte[] data = byteArrayOutputStream.toByteArray();
@@ -125,6 +134,8 @@ public class SocketServer {
                 Request request = (Request) oi.readObject();
                 String gotData = request.getCommandMassage();
                 Ticket gotTicket = request.getTicket();
+                String gotLogin = request.getLogin();
+                String gotPassword = request.getPassword();
                 log.info("Получено: " + gotData + " | Ticket:" + gotTicket);
 
                 String[] tokens = (gotData.trim() + " ").split(" ", 2);
@@ -138,13 +149,15 @@ public class SocketServer {
                     return;
                 }
 
-                Response response = command.apply(tokens , gotTicket);
+                Response response = command.apply(tokens , gotTicket , gotLogin,gotPassword);
                 sendAnswer(response, key);
             } catch (ClassNotFoundException e) {
                 log.error("Ошибка обработки запроса: " + e.getMessage());
             } catch (EOFException | StreamCorruptedException e) {
                 // Не удалось десериализовать объект, возможно, не все данные получены
                 log.error("Получены неполные данные.");
+            }catch (SQLException e){
+                log.error("Ошибка при работе в базой данных");
             }
         }
     }

@@ -4,6 +4,9 @@ import client.tools.Ask;
 import global.facility.Response;
 import global.facility.Ticket;
 import server.rulers.CollectionRuler;
+import server.rulers.DatabaseRuler;
+
+import java.sql.SQLException;
 
 
 /**
@@ -12,10 +15,12 @@ import server.rulers.CollectionRuler;
 
 public class Add extends Command{
     private final CollectionRuler collectionRuler;
+    private final DatabaseRuler databaseRuler;
 
-    public Add( CollectionRuler collectionRuler){
+    public Add( CollectionRuler collectionRuler , DatabaseRuler databaseRuler){
         super("add", "добавить новый элемент в коллекцию");
         this.collectionRuler=collectionRuler;
+        this.databaseRuler = databaseRuler;
     }
 
     /**
@@ -24,25 +29,24 @@ public class Add extends Command{
      * @return возвращает сообщение о  успешности выполнения команды
      */
 
-    public Response apply(String[] arguments , Ticket ticket){
+    public Response apply(String[] arguments , Ticket ticket,String login,String password){
         try{
             if(!arguments[1].isEmpty()){
-                //console.println("Неправильное количество аргументов!");
-                //console.println("Использование: '" + getName() + "'");
                 return new Response("Неправильное количество аргументов!\n" + "Использование: '" + getName() + "'" );
             }
-            //console.println("Начинаем создание Ticket");
-            Ticket a =  ticket;
-            if(a!= null&&a.validate()){
-                collectionRuler.add(a);
-                //console.println("Ticket добавлен!");
+            ticket.setUser_id(databaseRuler.getUserID(login));
+            if(ticket!= null&&ticket.validate()){
+                databaseRuler.insertTicket(ticket);
+                collectionRuler.init();
+                collectionRuler.update();
                 return new Response("Ticket добавлен!");
             }else{
-                //console.printError("Поля Ticket не валидны! Ticket не создан!");
                 return new Response("Поля Ticket не валидны! Ticket не создан!");
             }
+        }catch (SQLException e ){
+            return new Response("Ошибка при добавлении билета");
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            return new Response("Непредвиденная ошибка при добавлении билета");
         }
     }
 }

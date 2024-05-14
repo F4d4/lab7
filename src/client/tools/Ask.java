@@ -15,7 +15,7 @@ public class Ask {
         Integer discount = askDiscount(console);
         TicketType ticketType = askTicketType(console);
         Event event = askEvent(console);
-        Ticket ticket = new Ticket(name, coordinates, price, discount, ticketType, event);
+        Ticket ticket = new Ticket(name, coordinates, price, discount, ticketType, event ,1);
         return ticket;
     }
     /**

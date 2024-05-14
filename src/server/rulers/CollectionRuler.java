@@ -1,7 +1,6 @@
 package server.rulers;
 
 import global.facility.Ticket;
-import server.tools.Parser;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -10,14 +9,14 @@ import java.util.*;
  */
 
 public class CollectionRuler {
-    private long currentId = 1;
+    private DatabaseRuler databaseRuler;
+
     private LocalDateTime lastInitTime;
     private LocalDateTime lastSaveTime;
-    private final Parser parser;
     private PriorityQueue<Ticket> collection = new PriorityQueue<>();
 
-    public CollectionRuler(Parser parser){
-        this.parser = parser;
+    public CollectionRuler(DatabaseRuler databaseRuler){
+        this.databaseRuler = databaseRuler;
         this.lastInitTime=null;
         this.lastSaveTime=null;
     }
@@ -56,13 +55,7 @@ public class CollectionRuler {
         return t == null || byId(t.getId()) != null;
     }
 
-    /**
-     * Получить свободный id
-     */
-    public long getFreeId() {
-        while (byId(++currentId) != null);
-        return currentId;
-    }
+
     /**
      * Сортировка коллекции
      */
@@ -78,27 +71,13 @@ public class CollectionRuler {
      */
 
     public boolean init() {
-        collection.clear();;
-        collection = parser.loadCollection();
+        collection.clear();
+        collection = databaseRuler.loadCollection();
         lastInitTime = LocalDateTime.now();
-        for (var e : collection)
-            if (byId(e.getId()) == null) {
-                collection.clear();
-                return false;
-            } else {
-                if (e.getId()>currentId) currentId = e.getId();
-            }
         update();
         return true;
     }
-    /**
-     * Сохранение коллекции в файл
-     */
 
-    public void saveCollection() {
-        parser.saveCollectionxml(collection);
-        lastSaveTime = LocalDateTime.now();
-    }
     /**
      * Добавление элемента в коллекцию
      *
@@ -131,7 +110,13 @@ public class CollectionRuler {
         collection.poll();
     }
 
+    public boolean collectionIsEmpty(){
+        return collection.isEmpty();
+    }
 
+    public Ticket getFirstTicketToRemove(){
+        return collection.peek();
+    }
 
     @Override
     public String toString() {

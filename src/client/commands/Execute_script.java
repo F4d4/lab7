@@ -19,7 +19,7 @@ public class Execute_script {
     private static Stack<File> st = new Stack<>();
 
 
-    public static void execute(String command , SocketChannel socketChannel) throws Exception {
+    public static void execute(String command , SocketChannel socketChannel , String login , String password) throws Exception {
         File file = new File(command.split( " ")[1]);
         if (!file.canRead()) {
             throw new Exception("У вас недостаточно прав для чтения этого файла");
@@ -42,7 +42,9 @@ public class Execute_script {
                         org[n] = line;
                     }
                 }
-                SocketClient.sendRequest(new Request(mainCommand,new Ticket(org[0], new Coordinates(Integer.parseInt(org[1]) , Double.parseDouble(org[2])), Long.parseLong(org[3]), Integer.parseInt(org[4]), TicketType.valueOf(org[5]), new Event(String.valueOf(org[6]), Long.parseLong(org[7]), EventType.valueOf(org[8])))),socketChannel);
+                SocketClient.sendRequest(new Request(mainCommand,new Ticket(org[0], new Coordinates(Integer.parseInt(org[1]) , Double.parseDouble(org[2])),
+                        Long.parseLong(org[3]), Integer.parseInt(org[4]), TicketType.valueOf(org[5]), new Event(String.valueOf(org[6]), Long.parseLong(org[7]),
+                        EventType.valueOf(org[8])) ,0 ) , login, password),socketChannel);
             }else {
                 if (line.contains("execute_script")) {
                     File file_new = new File(line.split(" ")[1]);
@@ -52,10 +54,10 @@ public class Execute_script {
                     if (st.contains(file_new)) {
                         System.out.println("Рекурсия файла " + file.getName() + " была пропущена");
                     } else {
-                        execute(line,socketChannel);
+                        execute(line,socketChannel,login,password);
                     }
                 } else {
-                    SocketClient.sendRequest(new Request(line,null),socketChannel);
+                    SocketClient.sendRequest(new Request(line,null,login,password),socketChannel);
                 }
             }
         }

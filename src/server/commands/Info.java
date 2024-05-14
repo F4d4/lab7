@@ -24,11 +24,11 @@ public class Info extends Command {
      * @return возвращает сообщение о  успешности выполнения команды
      */
     @Override
-    public Response apply(String[] arguments , Ticket ticket) {
+    public Response apply(String[] arguments , Ticket ticket,String login,String password) {
         if (!arguments[1].isEmpty()) {
             //console.println("Неправильное количество аргументов!");
             //console.println("Использование: '" + getName() + "'");
-            return new Response("Неправильное количество аргументов!\nИспользование: '\" + getName() + \"'");
+            return new Response("Неправильное количество аргументов!\n" + "Использование: '" + getName() + "'" );
         }
 
         LocalDateTime lastInitTime = collectionRuler.getLastInitTime();

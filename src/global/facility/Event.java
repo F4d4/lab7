@@ -1,6 +1,5 @@
 package global.facility;
 
-import global.tools.Idgenerator;
 import global.tools.Validatable;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -18,19 +17,26 @@ import java.util.Objects;
  */
 
 public class Event implements Validatable  , Serializable {
-    private static final Idgenerator idgenerator = new Idgenerator();
     private long id; //Значение поля должно быть больше 0, Значение этого поля должно быть уникальным, Значение этого поля должно генерироваться автоматически
     private String name; //Поле не может быть null, Строка не может быть пустой
     private long minAge; //Поле не может быть null
     private EventType eventType; //Поле не может быть null
 
-    @JsonCreator
-    public Event( @JsonProperty("name") String name ,@JsonProperty("minAge") long minAge , @JsonProperty("eventType") EventType eventType){
-        this.id = idgenerator.generateID();
+
+
+    public Event(long id , String name , long minAge , EventType eventType){
+        this.id = id;
         this.name = name;
-        this.minAge=minAge;
-        this.eventType=eventType;
+        this.minAge = minAge;
+        this.eventType = eventType;
     }
+
+    public Event(String name , long minAge , EventType eventType){
+        this.name = name;
+        this.minAge = minAge;
+        this.eventType = eventType;
+    }
+
     @Override
     public String toString(){
         String conclusion = "";

@@ -18,7 +18,7 @@ public class Exit extends Command  {
      * @return возвращает сообщение о  успешности выполнения команды
      */
     @Override
-    public Response apply(String[] arguments , Ticket ticket){
+    public Response apply(String[] arguments , Ticket ticket,String login,String password){
         if(!arguments[1].isEmpty()){
             console.println("Неправильное количество аргументов!");
             console.println("Использование: '" + getName() + "'");

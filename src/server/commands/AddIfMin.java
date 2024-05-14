@@ -4,17 +4,22 @@ import client.tools.Ask;
 import global.facility.Response;
 import global.facility.Ticket;
 import server.rulers.CollectionRuler;
+import server.rulers.DatabaseRuler;
+
+import java.sql.SQLException;
 
 /**
  * Добавление элемента , если параметр price меньше минимального price в коллекции
  */
 public class AddIfMin extends Command {
     private final CollectionRuler collectionRuler;
+    private final DatabaseRuler databaseRuler;
 
-    public AddIfMin( CollectionRuler collectionRuler){
+    public AddIfMin( CollectionRuler collectionRuler , DatabaseRuler databaseRuler){
         super("add_if_min" , "добавить новый элемент в коллекцию , если его значение меньше чем у наименьшего элемента коллекции");
 
         this.collectionRuler = collectionRuler;
+        this.databaseRuler = databaseRuler;
     }
     /**
      * метод выполняет команду
@@ -22,33 +27,30 @@ public class AddIfMin extends Command {
      * @return возвращает сообщение о  успешности выполнения команды
      */
     @Override
-    public Response apply (String[] arguments , Ticket ticket){
+    public Response apply (String[] arguments , Ticket ticket,String login,String password){
         try{
             if(!arguments[1].isEmpty()){
-                //console.println("Неправильное количество аргументов!");
-                //console.println("Использование: '" + getName() + "'");
                 return new Response("Неправильное количество аргументов!\n" + "Использование: '" + getName() + "'" );
             }
 
-            //console.println("Начинаем создание Ticket");
-            Ticket a =  ticket;
+            ticket.setUser_id(databaseRuler.getUserID(login));
             var minPrice = minPrice();
-            if(a.getPrice()<minPrice){
-                if(a!= null&&a.validate()){
-                    collectionRuler.add(a);
-                    //console.println("Ticket добавлен!");
+            if(ticket.getPrice()<minPrice){
+                if(ticket!= null&&ticket.validate()){
+                    databaseRuler.insertTicket(ticket);
+                    collectionRuler.init();
                 }else{
-                    //console.printError("Поля Ticket не валидны! Ticket не создан!");
                     return new Response("Поля Ticket не валидны! Ticket не создан!");
                 }
             }else{
-                //console.println("Продукт не добавлен, цена не минимальная (" + a.getPrice() + " > " + minPrice +")");
-                return new Response("Продукт не добавлен, цена не минимальная (" + a.getPrice() + " > " + minPrice +")");
+                return new Response("Продукт не добавлен, цена не минимальная (" + ticket.getPrice() + " >= " + minPrice +")");
             }
             collectionRuler.update();
             return new Response("Ticket добавлен!");
+        }catch (SQLException e ){
+            return new Response("Ошибка при добавлении билета");
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            return new Response("Непредвиденная ошибка при добавлении билета");
         }
 
     }

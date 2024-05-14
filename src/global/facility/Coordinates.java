@@ -16,7 +16,7 @@ public class Coordinates implements Validatable , Serializable {
     private Double y; //Максимальное значение поля: 99, Поле не может быть null
 
     @JsonCreator
-    public Coordinates(@JsonProperty("x")int x, @JsonProperty("y")double y) {
+    public Coordinates(int x, double y) {
         this.x = x;
         this.y = y;
     }

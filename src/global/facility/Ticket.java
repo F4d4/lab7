@@ -1,10 +1,10 @@
 package global.facility;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.databind.deser.impl.CreatorCandidate;
 import global.tools.*;
 
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicLong;
@@ -19,43 +19,50 @@ import java.util.Objects;
  * Класс Билета
  */
 public class Ticket extends Artifact implements Validatable , Serializable {
-    private static final Idgenerator idgenerator = new Idgenerator();
     private static final long serialVersionUID = 5760575944040770153L;
     private long id; //Значение поля должно быть больше 0, Значение этого поля должно быть уникальным, Значение этого поля должно генерироваться автоматически
     private String name; //Поле не может быть null, Строка не может быть пустой
 
-    @JsonSerialize(using = CoordinatesSerializer.class)
+
     private Coordinates coordinates; //Поле не может быть null
 
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSS")
     private java.time.LocalDateTime creationDate; //Поле не может быть null, Значение этого поля должно генерироваться автоматически
 
     private long price; //Значение поля должно быть больше 0
     private int discount; //Значение поля должно быть больше 0, Максимальное значение поля: 100
-    @JsonProperty("ticketType")
     private TicketType type; //Поле может быть null
 
-    @JsonSerialize(using = EventSerializer.class)
     private Event event; //Поле не может быть null
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @JsonProperty("eventMinage")
     private long eventMinage;
 
+    private int user_id;
 
-    @JsonCreator
-    public Ticket(@JsonProperty("name") String name , @JsonProperty("coordinates") Coordinates coordinates,@JsonProperty("price") long price,@JsonProperty("discount") int discount ,@JsonProperty("ticketType") TicketType type, @JsonProperty("event") Event event){
-        this.id = idgenerator.generateID();
+
+
+    public Ticket( String name , Coordinates coordinates, long price, int discount,
+                   TicketType type,Event event , int user_id ){
         this.name = name;
         this.coordinates = coordinates;
         this.price = price;
         this.discount = discount;
         this.type = type;
-        this.event = event;
         this.creationDate = LocalDateTime.now();
+        this.event = event;
+        this.user_id = user_id;
+    }
 
-        this.eventMinage = event.getMinAge();
-
+    public Ticket( long id , String name , Coordinates coordinates, long price, int discount,
+                   TicketType type,String creationDate,Event event , int user_id ){
+        this.id = id;
+        this.name = name;
+        this.coordinates = coordinates;
+        this.price = price;
+        this.discount = discount;
+        this.type = type;
+        this.creationDate = LocalDateTime.parse(creationDate , DateTimeFormatter.ISO_DATE_TIME);
+        this.event = event;
+        this.user_id = user_id;
     }
 
 
@@ -73,6 +80,7 @@ public class Ticket extends Artifact implements Validatable , Serializable {
         conclusion+= "скидка = " + discount + " | ";
         conclusion+= "Тип билета = " + type + " | ";
         conclusion += "Коорднаты = " + coordinates + " | ";
+        conclusion += "ID пользователя = " + user_id + " | ";
         conclusion += event;
         return conclusion;
 
@@ -87,7 +95,6 @@ public class Ticket extends Artifact implements Validatable , Serializable {
      */
     @Override
     public boolean validate(){
-        if (id <= 0) return false;
         if (name == null || name.isEmpty()) return false;
         if (creationDate == null) return false;
         if (coordinates == null || !coordinates.validate()) return false;
@@ -101,6 +108,14 @@ public class Ticket extends Artifact implements Validatable , Serializable {
         return event.getMinAge();
     }
 
+    public String getEventName(){
+        return event.getName();
+    }
+
+    public EventType getEventType(){
+        return event.getEventType();
+    }
+
     public String getName() {
         return name;
     }
@@ -109,6 +124,13 @@ public class Ticket extends Artifact implements Validatable , Serializable {
         return coordinates;
     }
 
+    public int getXcoordinate(){
+        return coordinates.getX();
+    }
+
+    public double getYcoordinate(){
+        return coordinates.getY();
+    }
     public LocalDateTime getCreationDate() {
         return creationDate;
     }
@@ -161,6 +183,14 @@ public class Ticket extends Artifact implements Validatable , Serializable {
 
     public void setEvent(Event event) {
         this.event = event;
+    }
+
+    public void setUser_id(int user_id){
+        this.user_id=user_id;
+    }
+
+    public int getUser_id(){
+        return user_id;
     }
 
     public boolean equals(Object o) {
