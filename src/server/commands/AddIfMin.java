@@ -13,13 +13,11 @@ import java.sql.SQLException;
  */
 public class AddIfMin extends Command {
     private final CollectionRuler collectionRuler;
-    private final DatabaseRuler databaseRuler;
 
-    public AddIfMin( CollectionRuler collectionRuler , DatabaseRuler databaseRuler){
+    public AddIfMin( CollectionRuler collectionRuler){
         super("add_if_min" , "добавить новый элемент в коллекцию , если его значение меньше чем у наименьшего элемента коллекции");
 
         this.collectionRuler = collectionRuler;
-        this.databaseRuler = databaseRuler;
     }
     /**
      * метод выполняет команду
@@ -33,19 +31,17 @@ public class AddIfMin extends Command {
                 return new Response("Неправильное количество аргументов!\n" + "Использование: '" + getName() + "'" );
             }
 
-            ticket.setUser_id(databaseRuler.getUserID(login));
+            ticket.setUser_id(collectionRuler.getUserid(login));
             var minPrice = minPrice();
             if(ticket.getPrice()<minPrice){
                 if(ticket!= null&&ticket.validate()){
-                    databaseRuler.insertTicket(ticket);
-                    collectionRuler.init();
+                    collectionRuler.addTOcollection(ticket);
                 }else{
                     return new Response("Поля Ticket не валидны! Ticket не создан!");
                 }
             }else{
                 return new Response("Продукт не добавлен, цена не минимальная (" + ticket.getPrice() + " >= " + minPrice +")");
             }
-            collectionRuler.update();
             return new Response("Ticket добавлен!");
         }catch (SQLException e ){
             return new Response("Ошибка при добавлении билета");

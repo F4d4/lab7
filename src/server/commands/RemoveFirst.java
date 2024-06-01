@@ -37,11 +37,10 @@ public class RemoveFirst extends Command{
         if(!collectionRuler.collectionIsEmpty()){
             try {
                 var deletable= collectionRuler.getFirstTicketToRemove();
-                var userID = databaseRuler.getUserID(login);
+                var userID = collectionRuler.getUserid(login);
                 var deletableId = deletable.getId();
-                var checkingUserID = databaseRuler.isCorrectID(deletableId);
+                var checkingUserID =  collectionRuler.isCorrectID(deletableId);
                 if(userID==checkingUserID){
-                    databaseRuler.removeFirstTicket();
                     collectionRuler.removefirst();
                     return new Response("Ticket удалён");
                 }else {

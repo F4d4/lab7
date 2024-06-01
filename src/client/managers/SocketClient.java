@@ -54,7 +54,6 @@ public class SocketClient {
         console.println("Подключение к серверу успешно установлено.");
         Scanner scanner = new Scanner(System.in);
         while (scanner.hasNextLine()) {
-            //scanner.nextLine();
             try {
                 while (!isLoggedIn){
                     String tryTOlog = scanner.nextLine().trim();
@@ -96,10 +95,6 @@ public class SocketClient {
                         console.println("Ошибка при закрытии соединения: " + e.getMessage());
                     }
                     System.exit(1);
-                }
-
-                if (command1.equals("save")) {
-                    console.println("Вам недоступна данная команда");
                 }
 
                 if (command1.equals("add") || command1.equals("update_by_id") || command1.equals("add_if_min")) {

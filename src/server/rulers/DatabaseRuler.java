@@ -22,6 +22,8 @@ public class DatabaseRuler {
                     " creation_date , event_name, minage , event_type , user_id) " +
                     "values(?,?,?,?,?,?,?,?,?,?,?);";
 
+    private final String LAST_TICKET = "SELECT * FROM ticket ORDER BY id DESC LIMIT 1;";
+
     private final String UPDATE_TICKET = "update ticket set name = ?, x_coordinate = ? , y_coordinate = ? , price  = ?, discount  = ?," +
             " ticket_type  = ?, event_name = ?, minage = ? , event_type = ? where id = ? ";
 
@@ -37,6 +39,7 @@ public class DatabaseRuler {
 
     private final String REMOVE_FIRST_TICKET = "DELETE FROM ticket WHERE id = (SELECT MIN(id) FROM ticket);";
     private final String REMOVE_BY_ID = "delete from ticket where id = ?";
+    private final String CLEAR = "delete from ticket where user_id = ?";
 
     public void connect(){
         try{
@@ -75,6 +78,29 @@ public class DatabaseRuler {
             log.warn("Не удалось полностью загрузить коллекцию");
         }
         return result;
+    }
+
+    public Ticket getLastTicket() throws SQLException{
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery(LAST_TICKET);
+        if(resultSet.next()){
+            long id = resultSet.getLong("id");
+            String name = resultSet.getString("name");
+            int x = resultSet.getInt("x_coordinate");
+            double y = resultSet.getDouble("y_coordinate");
+            long price = resultSet.getLong("price");
+            int discount = resultSet.getInt("discount");
+            TicketType type = TicketType.valueOf(resultSet.getString("ticket_type"));
+            String creationDate = resultSet.getString("creation_date");
+            long eventID = resultSet.getLong("event_id");
+            String eventName = resultSet.getString("event_name");
+            long minAge = resultSet.getLong("minage");
+            EventType eventType = EventType.valueOf(resultSet.getString("event_type"));
+            int userId = resultSet.getInt("user_id");
+            return new Ticket(id,name,new Coordinates(x,y),price,discount,type,creationDate,
+                    new Event(eventID,eventName,minAge,eventType) , userId);
+        }
+        return null;
     }
 
     public void insertUser(String login , String password , String salt) throws SQLException{
@@ -185,5 +211,12 @@ public class DatabaseRuler {
         Statement statement = connection.createStatement();
         statement.executeUpdate(REMOVE_FIRST_TICKET);
     }
+
+    public void clear(int id) throws SQLException{
+        PreparedStatement preparedStatement = connection.prepareStatement(CLEAR);
+        preparedStatement.setInt(1,id);
+        preparedStatement.executeUpdate();
+    }
+
 
 }

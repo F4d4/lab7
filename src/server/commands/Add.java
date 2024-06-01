@@ -15,12 +15,10 @@ import java.sql.SQLException;
 
 public class Add extends Command{
     private final CollectionRuler collectionRuler;
-    private final DatabaseRuler databaseRuler;
 
-    public Add( CollectionRuler collectionRuler , DatabaseRuler databaseRuler){
+    public Add( CollectionRuler collectionRuler){
         super("add", "добавить новый элемент в коллекцию");
         this.collectionRuler=collectionRuler;
-        this.databaseRuler = databaseRuler;
     }
 
     /**
@@ -34,11 +32,9 @@ public class Add extends Command{
             if(!arguments[1].isEmpty()){
                 return new Response("Неправильное количество аргументов!\n" + "Использование: '" + getName() + "'" );
             }
-            ticket.setUser_id(databaseRuler.getUserID(login));
+            ticket.setUser_id(collectionRuler.getUserid(login));
             if(ticket!= null&&ticket.validate()){
-                databaseRuler.insertTicket(ticket);
-                collectionRuler.init();
-                collectionRuler.update();
+                collectionRuler.addTOcollection(ticket);
                 return new Response("Ticket добавлен!");
             }else{
                 return new Response("Поля Ticket не валидны! Ticket не создан!");

@@ -25,8 +25,8 @@ public class Main {
         }
         CommandRuler commandRuler = new CommandRuler(){{
             register("info", new Info(collectionRuler));
-            register("add" , new Add(collectionRuler, databaseRuler));
-            register("add_if_min", new AddIfMin(collectionRuler , databaseRuler));
+            register("add" , new Add(collectionRuler));
+            register("add_if_min", new AddIfMin(collectionRuler));
             register("update_by_id",new UpdateById(collectionRuler , databaseRuler) );
             register("show" , new Show(collectionRuler));
             register("filter_greater_than_price", new FilterGreaterThanPrice(collectionRuler));

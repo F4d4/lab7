@@ -37,11 +37,11 @@ public class UpdateById extends Command{
             long deletableId= Long.parseLong(arguments[1]);
             var deletable= collectionRuler.byId(deletableId);
             if (deletable == null) throw new NotFoundException();
-            var userID = databaseRuler.getUserID(login);
-            var checkingUserID = databaseRuler.isCorrectID(deletableId);
+            var userID = collectionRuler.getUserid(login);
+            var checkingUserID = collectionRuler.isCorrectID(deletableId);
             if(userID == checkingUserID&&ticket!= null&&ticket.validate()){
-                databaseRuler.updateTicket(ticket , deletableId);
-                collectionRuler.init();
+                collectionRuler.updateTicketDB(ticket,deletableId);
+                collectionRuler.updateCollection(deletable,ticket,deletableId);
                 return new Response("Ticket обновлен");
             }else {
                 return new Response("Ticket не обновлен! Возможные причины: вы попытались обновить чужой ticket " +

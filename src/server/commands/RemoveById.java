@@ -37,10 +37,10 @@ public class RemoveById extends Command {
             long deletableId= Long.parseLong(arguments[1]);
             var deletable= collectionRuler.byId(deletableId);
             if (deletable == null) throw new NotFoundException();
-            var userID = databaseRuler.getUserID(login);
-            var checkingUserID = databaseRuler.isCorrectID(deletableId);
+            var userID = collectionRuler.getUserid(login);
+            var checkingUserID = collectionRuler.isCorrectID(deletableId);
             if(userID==checkingUserID){
-                databaseRuler.removeTicketById(deletableId);
+                collectionRuler.removeTicketByIdDB(deletableId);
                 collectionRuler.remove(deletable);
                 return new Response("Ticket удалён");
             }else{

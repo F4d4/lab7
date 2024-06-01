@@ -4,6 +4,8 @@ import global.facility.Response;
 import global.facility.Ticket;
 import server.rulers.CollectionRuler;
 
+import java.sql.SQLException;
+
 /**
  * команда очищает коллекцию
  */
@@ -22,18 +24,19 @@ public class Clear extends Command {
     @Override
     public Response apply (String[] arguments , Ticket ticket,String login,String password){
         if(!arguments[1].isEmpty()){
-            //console.println("Неправильное количество аргументов!");
-            //console.println("Использование: '" + getName() + "'");
             return new Response("Неправильное количество аргументов!\nИспользование: '\" + getName() + \"'");
         }
 
-        if(!(collectionRuler==null)){
-            collectionRuler.removeAll();
-            //console.println("коллекция очищена");
-            return new Response("коллекция очищена");
-        }else{
-            //console.println("коллекция пуста");
-            return new Response("коллекция пуста");
+        try{
+            if(!(collectionRuler.getCollection().size()==0)){
+                var userID = collectionRuler.getUserid(login);
+                collectionRuler.removeAll(userID);
+                return new Response("коллекция очищена");
+            }else{
+                return new Response("коллекция пуста");
+            }
+        }catch (SQLException e){
+            return new Response("Ошибка в базе данных во время очищения коллекции пользователя");
         }
     }
 }

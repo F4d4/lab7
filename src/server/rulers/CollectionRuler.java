@@ -2,8 +2,11 @@ package server.rulers;
 
 import global.facility.Ticket;
 
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
+
 /**
  * Класс Руководителя коллекцией
  */
@@ -39,7 +42,7 @@ public class CollectionRuler {
     /**
      * Ищет элемент коллекции по id
      */
-    public Ticket byId(Long id){
+    public synchronized Ticket byId(Long id){
         for (Ticket element:collection){
             if (element.getId() == id) return element;
         }
@@ -91,31 +94,79 @@ public class CollectionRuler {
         update();
         return true;
     }
+
+    public synchronized int getUserid(String login) throws SQLException {
+        return databaseRuler.getUserID(login);
+    }
+
+    public void insertTICKET(Ticket ticket) throws SQLException{
+        databaseRuler.insertTicket(ticket);
+    }
+
+    public Ticket getLastTicket() throws SQLException{
+        return databaseRuler.getLastTicket();
+    }
+
+    public synchronized void addTOcollection(Ticket ticket) throws SQLException{
+        insertTICKET(ticket);
+        add(getLastTicket());
+    }
+
+    public synchronized int isCorrectID(long id) throws SQLException{
+        return databaseRuler.isCorrectID(id);
+    }
+
+    public synchronized void updateTicketDB(Ticket ticket , long id) throws SQLException{
+        databaseRuler.updateTicket(ticket,id);
+    }
+
+    public synchronized void updateCollection(Ticket deletable , Ticket newTicket,long id ){
+        newTicket.setId(id);
+        remove(deletable);
+        add(newTicket);
+    }
     /**
      * Удаляет элемент из коллекции
      */
-    public void remove(Ticket t){
+    public synchronized void remove(Ticket t){
         collection.remove(t);
+        update();
     }
     /**
      * Удаляет все элементы в коллекции
      */
-    public void removeAll(){
-        collection.clear();
+    public synchronized void removeAll( int id) throws SQLException{
+        databaseRuler.clear(id);
+        collection = clearUsersTicket(id);
+        update();
     }
     /**
      * удаляет первый элемент коллекции
      */
-    public void removefirst(){
+    public synchronized void removefirst() throws SQLException{
+        databaseRuler.removeFirstTicket();
         collection.poll();
+        update();
     }
+
+    public synchronized void removeTicketByIdDB(long id) throws SQLException{
+        databaseRuler.removeTicketById(id);
+    }
+
 
     public boolean collectionIsEmpty(){
         return collection.isEmpty();
     }
 
-    public Ticket getFirstTicketToRemove(){
+    public synchronized Ticket getFirstTicketToRemove(){
         return collection.peek();
+    }
+
+    public PriorityQueue<Ticket> clearUsersTicket(int id){
+        PriorityQueue<Ticket> filteredCollection = collection.stream()
+                .filter(ticket -> ticket.getUser_id() != id)
+                .collect(Collectors.toCollection(PriorityQueue::new));
+        return filteredCollection;
     }
 
     @Override

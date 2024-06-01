@@ -40,7 +40,6 @@ public class FilterGreaterThanPrice extends Command{
                     .map(Ticket::toString)
                     .collect(Collectors.joining("\n"));
             return new Response(ticketsString);
-            //tickets.forEach(console::println);
         }
     }
 
