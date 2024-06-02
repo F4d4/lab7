@@ -37,11 +37,12 @@ public class Ticket extends Artifact implements Validatable , Serializable {
     private long eventMinage;
 
     private int user_id;
+    private String login;
 
 
 
     public Ticket( String name , Coordinates coordinates, long price, int discount,
-                   TicketType type,Event event , int user_id ){
+                   TicketType type,Event event , int user_id  , String login ){
         this.name = name;
         this.coordinates = coordinates;
         this.price = price;
@@ -50,10 +51,11 @@ public class Ticket extends Artifact implements Validatable , Serializable {
         this.creationDate = LocalDateTime.now();
         this.event = event;
         this.user_id = user_id;
+        this.login = login;
     }
 
     public Ticket( long id , String name , Coordinates coordinates, long price, int discount,
-                   TicketType type,String creationDate,Event event , int user_id ){
+                   TicketType type,String creationDate,Event event , int user_id ,String login){
         this.id = id;
         this.name = name;
         this.coordinates = coordinates;
@@ -63,6 +65,7 @@ public class Ticket extends Artifact implements Validatable , Serializable {
         this.creationDate = LocalDateTime.parse(creationDate , DateTimeFormatter.ISO_DATE_TIME);
         this.event = event;
         this.user_id = user_id;
+        this.login = login;
     }
 
 
@@ -81,6 +84,7 @@ public class Ticket extends Artifact implements Validatable , Serializable {
         conclusion+= "Тип билета = " + type + " | ";
         conclusion += "Коорднаты = " + coordinates + " | ";
         conclusion += "ID пользователя = " + user_id + " | ";
+        conclusion += "login = " + login + " | ";
         conclusion += event;
         return conclusion;
 
@@ -191,6 +195,14 @@ public class Ticket extends Artifact implements Validatable , Serializable {
 
     public int getUser_id(){
         return user_id;
+    }
+
+    public String getLogin(){
+        return login;
+    }
+
+    public void setLogin(String login){
+        this.login = login;
     }
 
     public boolean equals(Object o) {

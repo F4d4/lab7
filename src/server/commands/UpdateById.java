@@ -41,7 +41,7 @@ public class UpdateById extends Command{
             var checkingUserID = collectionRuler.isCorrectID(deletableId);
             if(userID == checkingUserID&&ticket!= null&&ticket.validate()){
                 collectionRuler.updateTicketDB(ticket,deletableId);
-                collectionRuler.updateCollection(deletable,ticket,deletableId);
+                collectionRuler.updateCollection(deletable,ticket,deletableId , login);
                 return new Response("Ticket обновлен");
             }else {
                 return new Response("Ticket не обновлен! Возможные причины: вы попытались обновить чужой ticket " +

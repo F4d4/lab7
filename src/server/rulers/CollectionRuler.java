@@ -99,16 +99,16 @@ public class CollectionRuler {
         return databaseRuler.getUserID(login);
     }
 
-    public void insertTICKET(Ticket ticket) throws SQLException{
-        databaseRuler.insertTicket(ticket);
+    public void insertTICKET(Ticket ticket , String login) throws SQLException{
+        databaseRuler.insertTicket(ticket , login);
     }
 
     public Ticket getLastTicket() throws SQLException{
         return databaseRuler.getLastTicket();
     }
 
-    public synchronized void addTOcollection(Ticket ticket) throws SQLException{
-        insertTICKET(ticket);
+    public synchronized void addTOcollection(Ticket ticket,String login) throws SQLException{
+        insertTICKET(ticket , login);
         add(getLastTicket());
     }
 
@@ -120,9 +120,10 @@ public class CollectionRuler {
         databaseRuler.updateTicket(ticket,id);
     }
 
-    public synchronized void updateCollection(Ticket deletable , Ticket newTicket,long id ){
+    public synchronized void updateCollection(Ticket deletable , Ticket newTicket,long id , String login ){
         newTicket.setId(id);
         remove(deletable);
+        newTicket.setLogin(login);
         add(newTicket);
     }
     /**

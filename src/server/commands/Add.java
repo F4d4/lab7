@@ -32,9 +32,11 @@ public class Add extends Command{
             if(!arguments[1].isEmpty()){
                 return new Response("Неправильное количество аргументов!\n" + "Использование: '" + getName() + "'" );
             }
+
+            ticket.setLogin(login);
             ticket.setUser_id(collectionRuler.getUserid(login));
             if(ticket!= null&&ticket.validate()){
-                collectionRuler.addTOcollection(ticket);
+                collectionRuler.addTOcollection(ticket , login);
                 return new Response("Ticket добавлен!");
             }else{
                 return new Response("Поля Ticket не валидны! Ticket не создан!");

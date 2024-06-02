@@ -44,7 +44,7 @@ public class Execute_script {
                 }
                 SocketClient.sendRequest(new Request(mainCommand,new Ticket(org[0], new Coordinates(Integer.parseInt(org[1]) , Double.parseDouble(org[2])),
                         Long.parseLong(org[3]), Integer.parseInt(org[4]), TicketType.valueOf(org[5]), new Event(String.valueOf(org[6]), Long.parseLong(org[7]),
-                        EventType.valueOf(org[8])) ,0 ) , login, password),socketChannel);
+                        EventType.valueOf(org[8])) ,0  , null) , login, password),socketChannel);
             }else {
                 if (line.contains("execute_script")) {
                     File file_new = new File(line.split(" ")[1]);

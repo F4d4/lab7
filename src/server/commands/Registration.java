@@ -11,7 +11,7 @@ import static server.tools.PasswordHashing.*;
 public class Registration extends Command{
     private DatabaseRuler databaseRuler;
     public Registration(DatabaseRuler databaseRuler){
-        super("login" , "добавить пользователя");
+        super("registration" , "добавить пользователя");
         this.databaseRuler = databaseRuler;
     }
 

@@ -31,11 +31,12 @@ public class AddIfMin extends Command {
                 return new Response("Неправильное количество аргументов!\n" + "Использование: '" + getName() + "'" );
             }
 
+            ticket.setLogin(login);
             ticket.setUser_id(collectionRuler.getUserid(login));
             var minPrice = minPrice();
             if(ticket.getPrice()<minPrice){
                 if(ticket!= null&&ticket.validate()){
-                    collectionRuler.addTOcollection(ticket);
+                    collectionRuler.addTOcollection(ticket , login);
                 }else{
                     return new Response("Поля Ticket не валидны! Ticket не создан!");
                 }

@@ -12,20 +12,20 @@ import static server.managers.SocketServer.*;
 
 public class DatabaseRuler {
     private Connection connection;
-    private String DB_HOST = "localhost";
-    private String DB_NAME = "test";
+    private String DB_HOST = "pg";
+    private String DB_NAME = "studs";
     private String DB_USER = "postgres";
     private String DB_PASSWORD = "KosPrav1979";
     private String URL = "jdbc:postgresql://" + DB_HOST + "/" + DB_NAME;
     private final String ADD_TICKET =
             "insert into ticket (name , x_coordinate , y_coordinate , price , discount , ticket_type ," +
-                    " creation_date , event_name, minage , event_type , user_id) " +
-                    "values(?,?,?,?,?,?,?,?,?,?,?);";
+                    " creation_date , event_name, minage , event_type , user_id , login) " +
+                    "values(?,?,?,?,?,?,?,?,?,?,?,?);";
 
     private final String LAST_TICKET = "SELECT * FROM ticket ORDER BY id DESC LIMIT 1;";
 
     private final String UPDATE_TICKET = "update ticket set name = ?, x_coordinate = ? , y_coordinate = ? , price  = ?, discount  = ?," +
-            " ticket_type  = ?, event_name = ?, minage = ? , event_type = ? where id = ? ";
+            " ticket_type  = ?, event_name = ?, minage = ? , event_type = ? where id = ? ;";
 
     private final String CHECK_IF_USERID_IS_CORRECT = "select user_id from ticket where id=?;";
 
@@ -38,12 +38,12 @@ public class DatabaseRuler {
     private final String CHECK_USER_SALT = "select salt from users where login = ?;";
 
     private final String REMOVE_FIRST_TICKET = "DELETE FROM ticket WHERE id = (SELECT MIN(id) FROM ticket);";
-    private final String REMOVE_BY_ID = "delete from ticket where id = ?";
-    private final String CLEAR = "delete from ticket where user_id = ?";
+    private final String REMOVE_BY_ID = "delete from ticket where id = ?;";
+    private final String CLEAR = "delete from ticket where user_id = ?;";
 
     public void connect(){
         try{
-            connection = DriverManager.getConnection(URL,DB_USER, DB_PASSWORD);
+            connection = DriverManager.getConnection(URL);
             log.info("Подключение к базе данных успешно");
         } catch (SQLException e) {
             log.info("Ошибка подключения к базе данных");
@@ -71,8 +71,9 @@ public class DatabaseRuler {
                 long minAge = resultSet.getLong("minage");
                 EventType eventType = EventType.valueOf(resultSet.getString("event_type"));
                 int userId = resultSet.getInt("user_id");
+                String login = resultSet.getString("login");
                 result.add(new Ticket(id,name,new Coordinates(x,y),price,discount,type,creationDate,
-                        new Event(eventID,eventName,minAge,eventType) , userId));
+                        new Event(eventID,eventName,minAge,eventType) , userId, login));
             }
         }catch (SQLException e){
             log.warn("Не удалось полностью загрузить коллекцию");
@@ -97,8 +98,9 @@ public class DatabaseRuler {
             long minAge = resultSet.getLong("minage");
             EventType eventType = EventType.valueOf(resultSet.getString("event_type"));
             int userId = resultSet.getInt("user_id");
+            String login = resultSet.getString("login");
             return new Ticket(id,name,new Coordinates(x,y),price,discount,type,creationDate,
-                    new Event(eventID,eventName,minAge,eventType) , userId);
+                    new Event(eventID,eventName,minAge,eventType) , userId , login);
         }
         return null;
     }
@@ -139,7 +141,7 @@ public class DatabaseRuler {
         }
     }
 
-    public void insertTicket(Ticket ticket)throws SQLException{
+    public void insertTicket(Ticket ticket , String login)throws SQLException{
         PreparedStatement preparedStatement = connection.prepareStatement(ADD_TICKET);
         String name = ticket.getName();
         int x = ticket.getXcoordinate();
@@ -163,6 +165,7 @@ public class DatabaseRuler {
         preparedStatement.setLong(9,minAge);
         preparedStatement.setString(10,eventType);
         preparedStatement.setInt(11,userId);
+        preparedStatement.setString(12,login);
         preparedStatement.executeUpdate();
     }
 
